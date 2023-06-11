@@ -1,7 +1,6 @@
 # Sndmail - a sendmail emulator
 
 ![Build status](https://github.com/axllent/sndmail/actions/workflows/release-build.yml/badge.svg)
-![Docker builds](https://github.com/axllent/sndmail/actions/workflows/build-docker.yml/badge.svg)
 ![CodeQL](https://github.com/axllent/sndmail/actions/workflows/codeql-analysis.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/axllent/sndmail)](https://goreportcard.com/report/github.com/axllent/sndmail)
 
