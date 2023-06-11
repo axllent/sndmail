@@ -32,4 +32,4 @@ jobs:
         extra_files: LICENSE README.md sndmail.conf.example
         md5sum: false
         overwrite: true
-        ldflags: -w -X "github.com/axllent/sndmail/cmd/Version=${{ github.ref_name }}"
+        ldflags: -w -X "github.com/axllent/sndmail/cmd.Version=${{ github.ref_name }}"
