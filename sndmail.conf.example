@@ -1,0 +1,32 @@
+### When unspecified either via the `-f` flag, or setting the `From:` header 
+### in the message, the "from" email address. 
+### Default: <username>@<hostname>
+#from            = root@example.com
+
+#### SMTP relay server hostname or IP.
+#### Default: localhost
+#smtp-host       = localhost
+
+### SMTP relay server port.
+### Default: 25
+#smtp-port       = 25
+
+### Use STARTTLS to connect to the SMTP server.
+### Default: false
+#starttls        = false
+
+### Allow insecure STARTTLS (ie: do not validate the STL certificate).
+### Default false
+#allow-insecure  = false
+
+### SMTP relay server authentication (none|plain|login|cram-md5).
+### Default: none
+#auth-type       = none
+
+### SMTP relay authentication username. Only used if auth-type != none.
+### Default: none
+#auth-user       = user
+
+### SMTP relay authentication password. Only used if auth-type != none.
+### Default: none
+#auth-pass       = password
