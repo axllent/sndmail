@@ -19,14 +19,16 @@ It was created primarily for use in Docker containers. Whilst there are many dif
 ## Installation
 
 - Static binaries can be found on the [releases](https://github.com/axllent/sndmail/releases/latest)
-- Extract the `sendmail` executable to `/usr/sbin/sendmail`
+- Copy or symlink the `sndmail` executable to `/usr/sbin/sendmail`
 - Copy the `sndmail.conf.example` to `/etc/sndmail.conf` making any necessary edits to adjust to your SMTP relay server
 
 
 ### Install via bash script (Linux & Mac)
 
-Linux & Mac users can install it directly to `/usr/sbin/sendmail` with:
+Linux & Mac users can install it directly via:
 
 ```bash
 sudo bash < <(curl -sL https://raw.githubusercontent.com/axllent/sndmail/develop/install.sh)
 ```
+
+**Warning**: This will delete any existing /usr/sbin/sendmail

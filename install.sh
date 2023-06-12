@@ -5,12 +5,6 @@ TIMEOUT=90
 
 set -e
 
-if [ -e "/usr/sbin/sendmail" ]; then
-    echo "/usr/sbin/sendmail already exists"
-    echo "As a precaution you must delete this file yourself before running this script."
-    exit 1
-fi
-
 VERSION=$(curl --silent --location --max-time "${TIMEOUT}" "https://api.github.com/repos/${GH_REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 if [ $? -ne 0 ]; then
     echo -ne "\nThere was an error trying to check what is the latest version of sndmail.\nPlease try again later.\n"
@@ -84,8 +78,10 @@ curl --silent --location --max-time "${TIMEOUT}" "${LINK}" | tar zxf - || {
     exit 2
 }
 
-cp sendmail /usr/sbin/ || exit 2
-chmod 755 /usr/sbin/sendmail || exit 2
+cp sndmail /usr/sbin/ || exit 2
+chmod 755 /usr/sbin/sndmail || exit 2
+rm -f /usr/sbin/sendmail
+ln -s /usr/sbin/sendmail /usr/sbin/sndmail
 
 if [ ! -e "/etc/sndmail.conf" ]; then
     cp sndmail.conf.example /etc/sndmail.conf
