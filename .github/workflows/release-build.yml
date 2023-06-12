@@ -26,7 +26,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        binary_name: "sendmail"
+        binary_name: "sndmail"
         pre_command: export CGO_ENABLED=0
         asset_name: sndmail-${{ matrix.goos }}-${{ matrix.goarch }}
         extra_files: LICENSE README.md sndmail.conf.example
