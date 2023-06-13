@@ -81,7 +81,7 @@ curl --silent --location --max-time "${TIMEOUT}" "${LINK}" | tar zxf - || {
 cp sndmail /usr/sbin/ || exit 2
 chmod 755 /usr/sbin/sndmail || exit 2
 rm -f /usr/sbin/sendmail
-ln -s /usr/sbin/sendmail /usr/sbin/sndmail
+ln -s /usr/sbin/sndmail /usr/sbin/sendmail
 
 if [ ! -e "/etc/sndmail.conf" ]; then
     cp sndmail.conf.example /etc/sndmail.conf
@@ -101,4 +101,4 @@ case "$OS" in
 esac
 
 rm -rf "$tmp_dir"
-echo "Installed successfully to /usr/sbin/sendmail"
+echo "Installed successfully to /usr/sbin/sndmail"

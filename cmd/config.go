@@ -26,6 +26,7 @@ type Config struct {
 	Username      string
 	Password      string
 	Aliases       map[string]string
+	LogFile       string
 }
 
 // Generate the config
@@ -50,6 +51,7 @@ func initConfig() error {
 	if config.From == "" {
 		config.From = v["from"]
 	}
+	config.LogFile = v["log-file"]
 
 	return nil
 }
@@ -80,6 +82,7 @@ func loadFromConfigFile() map[string]string {
 		"auth-user":      "",
 		"auth-pass":      "",
 		"from":           from,
+		"log-file":       "",
 	}
 
 	confFile, err := findConfig("sndmail.conf")
