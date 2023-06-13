@@ -54,7 +54,7 @@ func stdinSMTPD() {
 
 		if transaction.DataWrite {
 			if text == "." {
-				if err := smtpSend(transaction.From, transaction.To, []byte(strings.Join(transaction.Message, "\r\n"))); err != nil {
+				if err := smtpWrapper(transaction.From, transaction.To, []byte(strings.Join(transaction.Message, "\r\n"))); err != nil {
 					writeSMTP(503, err.Error())
 				} else {
 					writeSMTP(250, "2.0.0 Ok: message queued")

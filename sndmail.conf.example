@@ -1,7 +1,7 @@
 ### When unspecified either via the `-f` flag, or setting the `From:` header 
 ### in the message, the "from" email address. 
 ### Default: <username>@<hostname>
-#from            = root@example.com
+#from           = root@example.com
 
 #### SMTP relay server hostname or IP.
 #### Default: localhost
@@ -24,9 +24,14 @@
 #auth-type       = none
 
 ### SMTP relay authentication username. Only used if auth-type != none.
-### Default: none
+### Default: empty
 #auth-user       = user
 
 ### SMTP relay authentication password. Only used if auth-type != none.
-### Default: none
+### Default: empty
 #auth-pass       = password
+
+### Log file - to log, get the absolite path to a logfile. The file must be
+### writable by all users using sndmail otherwise logging will silently fail.
+### Default: empty
+#log-file        = /var/log/mail.log

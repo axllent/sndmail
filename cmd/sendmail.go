@@ -27,13 +27,11 @@ func sendmail() {
 
 	msg, err := mail.ReadMessage(bytes.NewReader(body))
 	if err != nil {
-		// potentially forgot to add headers, inject a new blank line above
-		body = append([]byte(fmt.Sprintf("\n")), body...)
-		msg, err = mail.ReadMessage(bytes.NewReader(body))
-		if err != nil {
-			fmt.Fprintln(os.Stderr, fmt.Sprintf("error parsing message body: %s", err))
-			os.Exit(11)
-		}
+		// create blank message to lookups don't fail
+		msg = &mail.Message{}
+
+		// inject a new blank line below body
+		body = append(body, []byte(fmt.Sprintf("\r\n"))...)
 	}
 
 	if fromAddress == "" {
@@ -72,7 +70,7 @@ func sendmail() {
 	// get unique recipients, also sets aliases
 	recipients = uniqueRecipients(recipients)
 
-	if err := smtpSend(fromAddress, recipients, body); err != nil {
+	if err := smtpWrapper(fromAddress, recipients, body); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(11)
 	}
