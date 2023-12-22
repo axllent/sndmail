@@ -3,7 +3,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/mail"
 	"os"
 	"strings"
@@ -19,7 +19,7 @@ var (
 
 // Standard sendmail via the CLI
 func sendmail() {
-	body, err := ioutil.ReadAll(os.Stdin)
+	body, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error reading stdin")
 		os.Exit(11)
@@ -39,6 +39,12 @@ func sendmail() {
 		if fromAddress == "" {
 			fromAddress = config.From
 		}
+	}
+
+	from, err := mail.ParseAddress(fromAddress)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "invalid from address")
+		os.Exit(11)
 	}
 
 	recipients := pflag.Args()
@@ -70,7 +76,7 @@ func sendmail() {
 	// get unique recipients, also sets aliases
 	recipients = uniqueRecipients(recipients)
 
-	if err := smtpWrapper(fromAddress, recipients, body); err != nil {
+	if err := smtpWrapper(from.Address, recipients, body); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(11)
 	}
