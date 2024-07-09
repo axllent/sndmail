@@ -32,7 +32,3 @@ func Exec() {
 		sendmail()
 	}
 }
-
-// func main() {
-// 	Cmd()
-// }

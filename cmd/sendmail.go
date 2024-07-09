@@ -27,7 +27,7 @@ func sendmail() {
 
 	msg, err := mail.ReadMessage(bytes.NewReader(body))
 	if err != nil {
-		// create blank message to lookups don't fail
+		// create blank message so lookups don't fail
 		msg = &mail.Message{}
 
 		// inject a new blank line below body

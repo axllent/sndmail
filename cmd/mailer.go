@@ -1,18 +1,27 @@
 package cmd
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
+	"net/mail"
 	"net/smtp"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/lithammer/shortuuid"
 )
 
 // SMTP wrapper will send and optionally log the transaction
-func smtpWrapper(from string, to []string, msg []byte) error {
+func smtpWrapper(from string, to []string, message []byte) error {
+	msg, err := injectHeaders(message)
+	if err != nil {
+		return err
+	}
+
 	code, response, err := smtpSend(from, to, msg)
 
 	if config.LogFile != "" {
@@ -129,6 +138,28 @@ func dataWithResponse(c *smtp.Client, msg []byte) (int, string, error) {
 	}
 
 	return c.Text.ReadResponse(250)
+}
+
+// Inject Message-Id and Date if missing
+func injectHeaders(body []byte) ([]byte, error) {
+	msg, err := mail.ReadMessage(bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+
+	// add message ID if missing
+	if msg.Header.Get("Message-Id") == "" {
+		messageID := shortuuid.New() + "@sndmail"
+		body = append([]byte("Message-Id: <"+messageID+">\r\n"), body...)
+	}
+
+	// add date if missing
+	if msg.Header.Get("Date") == "" {
+		now := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
+		body = append([]byte("Date: "+now+"\r\n"), body...)
+	}
+
+	return body, nil
 }
 
 // error parser for SMTP response messages
