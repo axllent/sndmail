@@ -3,9 +3,10 @@ package cmd
 import (
 	"crypto/tls"
 	"fmt"
-	"io"
 	"net/smtp"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -21,11 +22,15 @@ func smtpWrapper(from string, to []string, msg []byte) error {
 		if config.STARTTLS {
 			tls = "on"
 		}
+		if err != nil {
+			code, response = smtpErrParser(err.Error())
+		}
+
 		recipients := strings.Join(to, ",")
 		logMsg := fmt.Sprintf("%s host=%s tls=%s from=%s, recipients=%s mailsize=%d, smtpstatus=%d smtpmsg='%s'\n", ts, config.SMTPHost, tls, from, recipients, len(msg), code, response)
 
 		file, err := os.OpenFile(config.LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666) // #nosec
-		// silently fail if the file cannot be opened
+		// silently fail if the log file cannot be opened
 		if err == nil {
 			defer file.Close()
 			_, _ = file.Write([]byte(logMsg))
@@ -75,6 +80,7 @@ func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 			return 0, "", err
 		}
 	}
+
 	if err = c.Mail(from); err != nil {
 		return 0, "", err
 	}
@@ -85,41 +91,57 @@ func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 		}
 	}
 
-	w, err := c.Data()
+	code, message, err := dataWithResponse(c, msg)
 	if err != nil {
 		return 0, "", err
 	}
+
+	return code, message, c.Quit()
+}
+
+// Go's net/smtp Data() only returns an error message. This custom function
+// also returns the server's response message so it can be logged.
+//
+// @see https://github.com/axllent/sndmail/issues/10#issuecomment-2214807859
+func dataWithResponse(c *smtp.Client, msg []byte) (int, string, error) {
+	id, err := c.Text.Cmd("DATA")
+	if err != nil {
+		return 0, "", err
+	}
+
+	c.Text.StartResponse(id)
+
+	code, message, err := c.Text.ReadResponse(354)
+	if err != nil {
+		return code, message, err
+	}
+
+	c.Text.EndResponse(id)
+
+	w := c.Text.DotWriter()
 
 	if _, err := w.Write(msg); err != nil {
 		return 0, "", err
 	}
 
-	defer c.Quit()
-
-	code, message, err := closeData(c)
-
-	return code, message, err
-}
-
-// CloseData wil ensure the SMTP server response is returned
-// @see https://stackoverflow.com/a/70925659
-func closeData(client *smtp.Client) (int, string, error) {
-	d := &dataCloser{
-		c:           client,
-		WriteCloser: client.Text.DotWriter(),
+	if err := w.Close(); err != nil {
+		return 0, "", err
 	}
 
-	return d.Close()
+	return c.Text.ReadResponse(250)
 }
 
-type dataCloser struct {
-	c *smtp.Client
-	io.WriteCloser
-}
+// error parser for SMTP response messages
+func smtpErrParser(s string) (int, string) {
+	var re = regexp.MustCompile(`(\d\d\d) (.*)`)
+	if re.MatchString(s) {
+		matches := re.FindAllStringSubmatch(s, -1)
+		for _, m := range matches {
+			i, _ := strconv.Atoi(m[1])
 
-func (d *dataCloser) Close() (int, string, error) {
-	d.WriteCloser.Close() // #nosec make sure WriterCloser gets closed
-	code, message, err := d.c.Text.ReadResponse(250)
+			return i, m[2]
+		}
+	}
 
-	return code, message, err
+	return 0, s
 }
