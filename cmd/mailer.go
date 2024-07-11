@@ -17,7 +17,7 @@ import (
 
 // SMTP wrapper will send and optionally log the transaction
 func smtpWrapper(from string, to []string, message []byte) error {
-	msg, err := injectHeaders(message)
+	msg, err := injectMissingHeaders(message, from)
 	if err != nil {
 		return err
 	}
@@ -140,11 +140,16 @@ func dataWithResponse(c *smtp.Client, msg []byte) (int, string, error) {
 	return c.Text.ReadResponse(250)
 }
 
-// Inject Message-Id and Date if missing
-func injectHeaders(body []byte) ([]byte, error) {
+// Inject Message-Id and Date if missing. The From address is also
+// optionally injected if missing.
+func injectMissingHeaders(body []byte, from string) ([]byte, error) {
 	msg, err := mail.ReadMessage(bytes.NewReader(body))
 	if err != nil {
-		return nil, err
+		// create blank message so lookups don't fail
+		msg = &mail.Message{}
+
+		// inject a new blank line before body
+		body = append([]byte(fmt.Sprintf("\r\n")), body...)
 	}
 
 	// add message ID if missing
@@ -157,6 +162,11 @@ func injectHeaders(body []byte) ([]byte, error) {
 	if msg.Header.Get("Date") == "" {
 		now := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
 		body = append([]byte("Date: "+now+"\r\n"), body...)
+	}
+
+	// set From header is missing
+	if msg.Header.Get("From") == "" {
+		body = append([]byte("From: <"+from+">\r\n"), body...)
 	}
 
 	return body, nil

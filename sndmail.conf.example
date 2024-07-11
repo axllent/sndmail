@@ -31,7 +31,7 @@
 ### Default: empty
 #auth-pass       = password
 
-### Log file - to log, get the absolite path to a logfile. The file must be
+### Log file - to log, get the absolute path to a logfile. The file must be
 ### writable by all users using sndmail otherwise logging will silently fail.
 ### Default: empty
 #log-file        = /var/log/mail.log
