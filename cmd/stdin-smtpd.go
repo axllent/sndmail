@@ -60,7 +60,7 @@ func stdinSMTPD() {
 					writeSMTP(250, "2.0.0 Ok: message queued")
 				}
 				// reset
-				transaction = smtpTransaction{}
+				transaction = smtpTransaction{LastActive: time.Now()}
 				continue
 			}
 			transaction.Message = append(transaction.Message, text)
