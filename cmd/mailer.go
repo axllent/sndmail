@@ -140,7 +140,7 @@ func dataWithResponse(c *smtp.Client, msg []byte) (int, string, error) {
 	return c.Text.ReadResponse(250)
 }
 
-// Inject Message-Id and Date if missing. The From address is also
+// Inject Message-ID and Date if missing. The From address is also
 // optionally injected if missing.
 func injectMissingHeaders(body []byte, from string) ([]byte, error) {
 	msg, err := mail.ReadMessage(bytes.NewReader(body))
@@ -153,9 +153,9 @@ func injectMissingHeaders(body []byte, from string) ([]byte, error) {
 	}
 
 	// add message ID if missing
-	if msg.Header.Get("Message-Id") == "" {
+	if msg.Header.Get("Message-ID") == "" {
 		messageID := shortuuid.New() + "@sndmail"
-		body = append([]byte("Message-Id: <"+messageID+">\r\n"), body...)
+		body = append([]byte("Message-ID: <"+messageID+">\r\n"), body...)
 	}
 
 	// add date if missing
