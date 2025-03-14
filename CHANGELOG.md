@@ -2,6 +2,13 @@
 
 Notable changes to Mailpit will be documented in this file.
 
+## [v0.0.7]
+
+### Chore
+- Use `Message-ID` instead of `Message-Id`
+- Reset LastActive after successful SMTP on standard input
+
+
 ## [v0.0.6]
 
 ### Chore
