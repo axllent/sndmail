@@ -63,6 +63,12 @@ func stdinSMTPD() {
 				transaction = smtpTransaction{LastActive: time.Now()}
 				continue
 			}
+
+			// SMTP standard input will append an extra dot to any line which starts with a dot, so remove it again
+			if strings.HasPrefix(text, "..") {
+				text = text[1:]
+			}
+
 			transaction.Message = append(transaction.Message, text)
 			continue
 		}
