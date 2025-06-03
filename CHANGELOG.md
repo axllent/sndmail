@@ -2,6 +2,12 @@
 
 Notable changes to Mailpit will be documented in this file.
 
+## [v0.0.8]
+
+### Fix
+- Remove leading dot when `-bs` is used (SMTP standard input)
+
+
 ## [v0.0.7]
 
 ### Chore
