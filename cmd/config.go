@@ -94,7 +94,7 @@ func loadFromConfigFile() map[string]string {
 	if err != nil {
 		return c
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -135,7 +135,7 @@ func loadAliasMap() map[string]string {
 	if err != nil {
 		return c
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {

@@ -31,7 +31,7 @@ func sendmail() {
 		msg = &mail.Message{}
 
 		// inject a new blank line below body
-		body = append(body, []byte(fmt.Sprintf("\r\n"))...)
+		body = append(body, []byte("\r\n")...)
 	}
 
 	if fromAddress == "" {
