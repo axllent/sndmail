@@ -4,44 +4,59 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/axllent/ghru/v2"
 	"github.com/spf13/pflag"
 )
 
+var (
+	displayVersion bool
+	doUpdate       bool
+
+	ghruConf = ghru.Config{
+		Repo:           "axllent/sndmail",
+		ArchiveName:    "sndmail-{{.OS}}-{{.Arch}}",
+		BinaryName:     "sndmail",
+		CurrentVersion: Version,
+	}
+)
+
 func initArgs() {
-	// artificially generate the help screen to simplify the formatting.
+	// Artificially generate the help screen to simplify the formatting.
 	pflag.Usage = func() {
 		fmt.Printf("sndmail %s: sendmail emulator (https://github.com/axllent/sndmail)\n\n", Version)
 		fmt.Printf("Usage: %s [flags] [recipients] < message\n\n", os.Args[0])
 		fmt.Println(`Options:
-  -B     Ignored
-  -bm    Read mail from standard input (default)
-  -bs    Handle SMTP commands on standard input
-  -C     Ignored
-  -d     Ignored
-  -F     Ignored
-  -f     Set the envelope sender address
-  -i     Ignored
-  -L     Ignored
-  -m     Ignored
-  -N     Ignored
-  -n     Ignored
-  -o     Ignored
-  -em    Ignored
-  -ep    Ignored
-  -eq    Ignored
-  -p     Ignored
-  -q     Ignored
-  -R     Ignored
-  -r     Ignored
-  -t     Read message for recipients
-  -U     Ignored
-  -V     Ignored
-  -v     Ignored
-  -X     Ignored`)
+  -B     	Ignored
+  -bm    	Read mail from standard input (default)
+  -bs    	Handle SMTP commands on standard input
+  -C     	Ignored
+  -d     	Ignored
+  -F     	Ignored
+  -f     	Set the envelope sender address
+  -i     	Ignored
+  -L     	Ignored
+  -m     	Ignored
+  -N     	Ignored
+  -n     	Ignored
+  -o     	Ignored
+  -em    	Ignored
+  -ep    	Ignored
+  -eq    	Ignored
+  -p     	Ignored
+  -q     	Ignored
+  -R     	Ignored
+  -r     	Ignored
+  -t     	Read message for recipients
+  -U     	Ignored
+  -V     	Ignored
+  -v     	Ignored
+  -X     	Ignored
+  --version	Display version and update information
+  --update	Update sndmail to the latest version`)
 	}
 
-	// given limitation in Go's default flag package (cannot handle single dash with
-	// multiple characters), we use pflag in order to artificially handle `-bs`
+	// Given limitation in Go's default flag package (cannot handle single dash with
+	// multiple characters), we use pflag in order to artificially handle `-bs`.
 	pflag.BoolP("long-B", "B", false, "Ignored")
 	// handles -bm & -bs
 	pflag.StringP("long-b", "b", "", "Handle SMTP commands on standard input")
@@ -66,11 +81,48 @@ func initArgs() {
 	pflag.BoolP("long-v", "v", false, "Ignored")
 	pflag.BoolP("long-X", "X", false, "Ignored")
 	pflag.BoolP("help", "h", false, "")
+	pflag.BoolVar(&displayVersion, "version", false, "Display version information")
+	pflag.BoolVar(&doUpdate, "update", false, "Update sndmail to the latest version")
 
 	pflag.Parse()
 
 	if showHelp, _ := pflag.CommandLine.GetBool("help"); showHelp {
 		pflag.Usage()
+		os.Exit(0)
+	}
+
+	if displayVersion {
+		fmt.Printf("Version: %s\n", Version)
+
+		release, err := ghruConf.Latest()
+		if err != nil {
+			fmt.Printf("Error checking for latest release: %s\n", err)
+			os.Exit(1)
+		}
+
+		// The latest version is the same version
+		if release.Tag == Version {
+			os.Exit(0)
+		}
+
+		// A newer release is available
+		fmt.Printf(
+			"Update available: %s\nRun `%s --update` to update (requires read/write access to install directory).\n",
+			release.Tag,
+			os.Args[0],
+		)
+		os.Exit(0)
+	}
+
+	if doUpdate {
+		// Update the application
+		rel, err := ghruConf.SelfUpdate()
+		if err != nil {
+			fmt.Printf("Error updating: %s\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Updated %s to version %s\n", os.Args[0], rel.Tag)
 		os.Exit(0)
 	}
 
@@ -82,7 +134,7 @@ func initArgs() {
 	_, _ = checkParam("long-e", "e", []string{"m", "p", "q"})
 }
 
-// simply function to limit the short flags to valid options
+// Simple function to limit the short flags to valid options
 func checkParam(long, short string, options []string) (string, error) {
 	if v, err := pflag.CommandLine.GetString(long); err == nil {
 		if v != "" {

@@ -205,5 +205,5 @@ func getAddressArg(argName string, args string) (*mail.Address, error) {
 		return mail.ParseAddress(path)
 	}
 
-	return nil, fmt.Errorf("Bad arguments")
+	return nil, fmt.Errorf("bad arguments")
 }

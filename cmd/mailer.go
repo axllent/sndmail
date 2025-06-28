@@ -41,7 +41,7 @@ func smtpWrapper(from string, to []string, message []byte) error {
 		file, err := os.OpenFile(config.LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666) // #nosec
 		// silently fail if the log file cannot be opened
 		if err == nil {
-			defer file.Close()
+			defer func() { _ = file.Close() }()
 			_, _ = file.Write([]byte(logMsg))
 		}
 	}
@@ -58,7 +58,7 @@ func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 		return 0, "", err
 	}
 
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	if config.STARTTLS {
 		conf := &tls.Config{ServerName: config.SMTPHost, MinVersion: tls.VersionTLS12}
@@ -149,7 +149,7 @@ func injectMissingHeaders(body []byte, from string) ([]byte, error) {
 		msg = &mail.Message{}
 
 		// inject a new blank line before body
-		body = append([]byte(fmt.Sprintf("\r\n")), body...)
+		body = append([]byte("\r\n"), body...)
 	}
 
 	// add message ID if missing
