@@ -70,6 +70,14 @@ func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 		}
 	}
 
+	// Set the hostname for HELO/EHLO
+	// @see https://github.com/axllent/mailpit/pull/556
+	if hostname, err := os.Hostname(); err == nil {
+		if err := c.Hello(hostname); err != nil {
+			return 0, "", fmt.Errorf("error saying HELO/EHLO to %s: %v", addr, err)
+		}
+	}
+
 	var a smtp.Auth
 
 	if config.Auth == "plain" {
