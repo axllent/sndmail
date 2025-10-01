@@ -1,5 +1,5 @@
-github.com/axllent/ghru/v2 v2.0.1 h1:/9XHbMqJRGRxlyNMq2XiHQpBLz7hlq8xCdgJ4ZhjCoM=
-github.com/axllent/ghru/v2 v2.0.1/go.mod h1:seMMjx8/0r5ZAL7c0vwTPIRoyN0AoTUqAylZEWZWGK4=
+github.com/axllent/ghru/v2 v2.0.2 h1:xalJupjJAU8Kcs39AwpG53qbcbi3+WKM98BEoQWf/zU=
+github.com/axllent/ghru/v2 v2.0.2/go.mod h1:seMMjx8/0r5ZAL7c0vwTPIRoyN0AoTUqAylZEWZWGK4=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/lithammer/shortuuid v3.0.0+incompatible h1:NcD0xWW/MZYXEHa6ITy6kaXN5nwm/V115vj2YXfhS0w=
