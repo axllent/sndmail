@@ -2,7 +2,7 @@
 
 Notable changes to sndmail will be documented in this file.
 
-## [v1.0.0]
+## [v1.0.1]
 
 ### Feature
 - Add ability to check for latest version and self-update functionality
@@ -12,6 +12,10 @@ Notable changes to sndmail will be documented in this file.
 - Add golangci-lint tests to GitHub Actions
 - Normalize error messages and improve resource cleanup in SMTP-related functions
 - Switch to cliff for changelog generation
+- Set HELO/EHLO using hostname
+- Update Go dependencies
+- Bump actions/setup-go from 5 to 6
+- Bump actions/stale from 9.1.0 to 10.0.0
 
 
 ## [v0.0.8]
