@@ -60,6 +60,16 @@ func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 
 	defer func() { _ = c.Close() }()
 
+	// Set the hostname for HELO/EHLO before any TLS or auth operations.
+	// c.Hello() must be called before other methods; c.StartTLS() internally
+	// calls c.hello() which would cause a subsequent c.Hello() to fail.
+	// @see https://github.com/axllent/mailpit/pull/556
+	if hostname, err := os.Hostname(); err == nil {
+		if err := c.Hello(hostname); err != nil {
+			return 0, "", fmt.Errorf("error saying HELO/EHLO to %s: %v", addr, err)
+		}
+	}
+
 	if config.STARTTLS {
 		conf := &tls.Config{ServerName: config.SMTPHost, MinVersion: tls.VersionTLS12}
 
@@ -67,14 +77,6 @@ func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 
 		if err = c.StartTLS(conf); err != nil {
 			return 0, "", err
-		}
-	}
-
-	// Set the hostname for HELO/EHLO
-	// @see https://github.com/axllent/mailpit/pull/556
-	if hostname, err := os.Hostname(); err == nil {
-		if err := c.Hello(hostname); err != nil {
-			return 0, "", fmt.Errorf("error saying HELO/EHLO to %s: %v", addr, err)
 		}
 	}
 
