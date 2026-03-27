@@ -46,7 +46,11 @@ func stdinSMTPD() {
 	errors := []string{}
 	for {
 		// Scans a line from Stdin(Console)
-		scanner.Scan()
+		if !scanner.Scan() {
+			// stdin closed or read error
+			writeSMTP(421, fmt.Sprintf("4.4.2 %s Error: connection closed", config.Hostname))
+			os.Exit(0)
+		}
 		// Holds the string that scanned
 		text := scanner.Text()
 

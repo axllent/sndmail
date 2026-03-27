@@ -92,7 +92,9 @@ func uniqueRecipients(slice []string) []string {
 		if ok {
 			val = alias
 		}
-		u[val] = true
+		if val != "" {
+			u[val] = true
+		}
 	}
 
 	n := make([]string, 0, len(u))

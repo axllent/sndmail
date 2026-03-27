@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"fmt"
+	"net"
 	"net/mail"
 	"net/smtp"
 	"os"
@@ -49,16 +51,36 @@ func smtpWrapper(from string, to []string, message []byte) error {
 	return err
 }
 
+// smtpTimeout is the timeout for establishing an SMTP connection.
+const smtpTimeout = 15 * time.Second
+
 // Send via SMTP
 func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 	addr := fmt.Sprintf("%s:%d", config.SMTPHost, config.SMTPPort)
 
-	c, err := smtp.Dial(addr)
+	dialer := &net.Dialer{Timeout: smtpTimeout}
+	conn, err := dialer.DialContext(context.Background(), "tcp", addr)
 	if err != nil {
 		return 0, "", err
 	}
 
+	c, err := smtp.NewClient(conn, config.SMTPHost)
+	if err != nil {
+		_ = conn.Close()
+		return 0, "", err
+	}
+
 	defer func() { _ = c.Close() }()
+
+	// Set the hostname for HELO/EHLO before any TLS or auth operations.
+	// c.Hello() must be called before other methods; c.StartTLS() internally
+	// calls c.hello() which would cause a subsequent c.Hello() to fail.
+	// @see https://github.com/axllent/mailpit/pull/556
+	if hostname, err := os.Hostname(); err == nil {
+		if err := c.Hello(hostname); err != nil {
+			return 0, "", fmt.Errorf("error saying HELO/EHLO to %s: %v", addr, err)
+		}
+	}
 
 	if config.STARTTLS {
 		conf := &tls.Config{ServerName: config.SMTPHost, MinVersion: tls.VersionTLS12}
@@ -67,14 +89,6 @@ func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 
 		if err = c.StartTLS(conf); err != nil {
 			return 0, "", err
-		}
-	}
-
-	// Set the hostname for HELO/EHLO
-	// @see https://github.com/axllent/mailpit/pull/556
-	if hostname, err := os.Hostname(); err == nil {
-		if err := c.Hello(hostname); err != nil {
-			return 0, "", fmt.Errorf("error saying HELO/EHLO to %s: %v", addr, err)
 		}
 	}
 
