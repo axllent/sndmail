@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: stable
+      - name: Run Go tests
+        run: go test -v ./...
       - name: Build sndmail
         run: go build -o sndmail .
       - name: Configure sndmail
