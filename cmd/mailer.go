@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"fmt"
+	"net"
 	"net/mail"
 	"net/smtp"
 	"os"
@@ -49,12 +51,22 @@ func smtpWrapper(from string, to []string, message []byte) error {
 	return err
 }
 
+// smtpTimeout is the timeout for establishing an SMTP connection.
+const smtpTimeout = 15 * time.Second
+
 // Send via SMTP
 func smtpSend(from string, to []string, msg []byte) (int, string, error) {
 	addr := fmt.Sprintf("%s:%d", config.SMTPHost, config.SMTPPort)
 
-	c, err := smtp.Dial(addr)
+	dialer := &net.Dialer{Timeout: smtpTimeout}
+	conn, err := dialer.DialContext(context.Background(), "tcp", addr)
 	if err != nil {
+		return 0, "", err
+	}
+
+	c, err := smtp.NewClient(conn, config.SMTPHost)
+	if err != nil {
+		_ = conn.Close()
 		return 0, "", err
 	}
 
