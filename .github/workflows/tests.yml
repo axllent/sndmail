@@ -6,15 +6,44 @@ on:
     branches: [develop, "feature/**"]
 
 jobs:
-  golangci:
-    name: golangci-lint
+  tests:
+    name: Mailpit integration tests
     runs-on: ubuntu-latest
+    services:
+      mailpit:
+        image: axllent/mailpit
+        ports:
+          - 1025:1025
+          - 8025:8025
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version: stable
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: v2.1
+      - name: Build sndmail
+        run: go build -o sndmail .
+      - name: Configure sndmail
+        run: printf "smtp-host = localhost\nsmtp-port = 1025\n" > sndmail.conf
+      - name: Send test email with explicit recipient
+        run: ./sndmail test@example.com < testdata/test.txt
+      - name: Check email subject received in Mailpit
+        run: |
+          SUBJECT=$(curl -sf http://localhost:8025/api/v1/message/latest | jq -r '.Subject')
+          echo "Email subject: $SUBJECT"
+          [ "$SUBJECT" == "Test message" ] || (echo "Expected subject to be 'Test message', got '$SUBJECT'" && exit 1)
+      - name: Check explicit email received in Mailpit as Bcc
+        run: |
+          ADDR=$(curl -sf http://localhost:8025/api/v1/message/latest | jq -r '.Bcc[0].Address')
+          echo "Bcc address: $ADDR"
+          [ "$ADDR" == "test@example.com" ] || (echo "Expected Bcc address to be test@example.com, got $ADDR" && exit 1)
+      - name: Send test email using -t flag
+        run: ./sndmail -t < testdata/test.txt
+      - name: Check explicit email not received in Mailpit as Bcc
+        run: |
+          ADDR=$(curl -sf http://localhost:8025/api/v1/message/latest | jq -r '.Bcc[0].Address')
+          [ "$ADDR" == "null" ] || (echo "Expected Bcc address to be null, got $ADDR" && exit 1)
+      - name: Verify emails received in Mailpit
+        run: |
+          COUNT=$(curl -sf http://localhost:8025/api/v1/messages | jq '.total')
+          echo "Messages received: $COUNT"
+          [ "$COUNT" -eq 2 ] || (echo "Expected 2 messages, got $COUNT" && exit 1)
