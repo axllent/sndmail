@@ -1,5 +1,6 @@
 # Sndmail - a sendmail emulator
 
+![Tests status](https://github.com/axllent/sndmail/actions/workflows/tests.yml/badge.svg)
 ![Build status](https://github.com/axllent/sndmail/actions/workflows/release-build.yml/badge.svg)
 ![CodeQL](https://github.com/axllent/sndmail/actions/workflows/codeql-analysis.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/axllent/sndmail)](https://goreportcard.com/report/github.com/axllent/sndmail)
@@ -24,10 +25,15 @@ It was created primarily for use in Docker containers. While there are many diff
 
 ### Install via a bash script (Linux & macOS)
 
-**Warning**: This will delete any existing `/usr/sbin/sendmail`!
-
 Linux & macOS users can install it directly by using:
 
 ```bash
-sudo bash < <(curl -sL https://raw.githubusercontent.com/axllent/sndmail/develop/install.sh)
+sudo sh < <(curl -sL https://raw.githubusercontent.com/axllent/sndmail/develop/install.sh)
+```
+
+**Note** that this will install sndmail into `/usr/local/bin/sndmail` and symlink it to `/usr/sbin/sendmail`.
+If you want to install it without the symlink, you can use the `NO_SENDMAIL` environment variable:
+
+```bash
+sudo NO_SENDMAIL=true sh < <(curl -sL https://raw.githubusercontent.com/axllent/sndmail/develop/install.sh)
 ```
