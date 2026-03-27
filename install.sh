@@ -76,7 +76,7 @@ TIMEOUT=90
 # This is used to authenticate with the GitHub API. (Fix the public rate limiting issue)
 # Try the GITHUB_TOKEN environment variable is set globally.
 GITHUB_API_TOKEN="${GITHUB_TOKEN:-}"
-NO_SENDMAIL=0
+NO_SENDMAIL=${NO_SENDMAIL:-false}
 
 # Override defaults with any user-supplied arguments.
 while [ $# -gt 0 ]; do
@@ -92,7 +92,7 @@ while [ $# -gt 0 ]; do
         esac
         ;;
     -n|--no-sendmail)
-        NO_SENDMAIL=1
+        NO_SENDMAIL=true
         ;;
     --auth | --auth-token | --github-token | --token)
         shift
@@ -228,7 +228,7 @@ if [ $EXIT_CODE -eq 0 ]; then
 
     # Set the owner and group to root:root if the script is run as root.
     if [ $EXIT_CODE -eq 0 ] && [ "$(id -u)" -eq "0" ]; then
-        if [ $NO_SENDMAIL -eq 0 ]; then
+        if [ "$NO_SENDMAIL" != true ]; then
             rm -f /usr/sbin/sendmail
             ln -s "${INSTALL_BIN_PATH}" /usr/sbin/sendmail || EXIT_CODE=$?
             if [ $EXIT_CODE -ne 0 ]; then
