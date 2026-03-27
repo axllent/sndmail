@@ -2,6 +2,24 @@
 
 Notable changes to sndmail will be documented in this file.
 
+## [v1.1.0]
+
+### Chore
+- Refactor install script, support installation directory & support GitHub API token authentication
+- Update Go version and dependencies
+- Add connection timeout for SMTP connections
+
+### Fix
+- Move HELO/EHLO hostname setting to the correct position in smtpSend function
+- Handle stdin closure with appropriate error message in stdinSMTPD function
+- Update isFile function to handle errors more accurately
+- Prevent adding empty recipients to unique recipients map
+
+### Test
+- Add tests with Mailpit
+- Add unit tests for uniqueRecipients and injectMissingHeaders functions
+
+
 ## [v1.0.2]
 
 ### Chore
