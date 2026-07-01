@@ -18,7 +18,7 @@ jobs:
             goos: darwin
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     # build the binaries
     - uses: wangyoucao577/go-release-action@v1.55
