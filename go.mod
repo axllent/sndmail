@@ -1,6 +1,6 @@
 module github.com/axllent/sndmail
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/axllent/ghru/v2 v2.2.3
@@ -10,5 +10,5 @@ require (
 
 require (
 	github.com/google/uuid v1.6.0 // indirect
-	golang.org/x/mod v0.36.0 // indirect
+	golang.org/x/mod v0.42.0 // indirect
 )
