@@ -2,6 +2,16 @@
 
 Notable changes to sndmail will be documented in this file.
 
+## [v1.1.2]
+
+### Chore
+- Bump actions/stale from 10.2.0 to 10.3.0
+- Bump actions/checkout from 6 to 7
+- Bump actions/setup-go from 6 to 7
+- Bump actions/stale from 10.3.0 to 11.0.0
+- Update Go dependencies
+
+
 ## [v1.1.1]
 
 ### Chore
